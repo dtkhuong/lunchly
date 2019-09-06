@@ -11,7 +11,30 @@ const router = new express.Router();
 
 router.get("/", async function(req, res, next) {
   try {
-    const customers = await Customer.all();
+    const search = req.query.search;
+    
+    let customers;
+
+    if (search) {
+      customers = await Customer.getByName(search);
+      return res.render("customer_list.html", { customers });
+    }
+    else {
+      customers = await Customer.all();
+      return res.render("customer_list.html", { customers });
+    }
+    
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** show list of top 10 customers by reservations */
+
+router.get("/top", async function(req, res, next) {
+  try {
+    let customers = await Customer.getTopTenCusts();
+    console.log("top ten cust", customers);
     return res.render("customer_list.html", { customers });
   } catch (err) {
     return next(err);

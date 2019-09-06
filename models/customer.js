@@ -55,18 +55,22 @@ class Customer {
 
   /** get a customer by name. */
 
-  static async getByName(firstName, lastName) {
+  static async getByName(search) {
+    const searchArr = search.split(" ");
+    
     const results = await db.query(
       `SELECT id, 
          first_name AS "firstName",  
          last_name AS "lastName", 
          phone, 
          notes 
-        FROM customers WHERE firstName=$1, lastName=$2`,
-      [firstName, lastName]
+        FROM customers 
+        WHERE first_name=$1 OR last_name=$2 OR first_name=$2 OR last_name=$1`,
+      [searchArr[0], searchArr[1]]
     );
+    console.log("query results", results.rows)
 
-    const customer = results.rows[0];
+    const customer = results.rows;
 
     if (customer === undefined) {
       const err = new Error(`No such customer: ${firstName} ${lastName}`);
@@ -74,7 +78,7 @@ class Customer {
       throw err;
     }
 
-    return new Customer(customer);
+    return results.rows.map(c => new Customer(c));
   }
 
 
@@ -108,6 +112,34 @@ class Customer {
         [this.firstName, this.lastName, this.phone, this.notes, this.id]
       );
     }
+  }
+
+  /**get top 10 customers by reservations count */
+
+  static async getTopTenCusts() {
+    const results = await db.query(
+          `SELECT
+          reservations.customer_id AS "customerId", 
+          customers.first_name AS "firstName",  
+          customers.last_name AS "lastName", 
+          customers.phone, 
+          customers.notes,
+          COUNT(reservations.customer_id) AS resCount
+          FROM reservations
+          LEFT JOIN customers
+          ON reservations.customer_id = customers.id
+          GROUP BY reservations.customer_id,
+          customers.first_name,
+          customers.last_name,
+          customers.phone, 
+          customers.notes
+          ORDER BY COUNT(reservations.customer_id) DESC 
+          LIMIT 10`
+    );
+
+    // console.log("top ten results", results.rows)
+
+    return results.rows.map(row => new Customer(row));
   }
 }
 

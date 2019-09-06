@@ -29,9 +29,14 @@
           <li class="nav-item">
             <a class="nav-link" href="/add/">Add a Customer</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/top">
+              Top Customers <span class="sr-only">(current)</span>
+            </a>
+          </li>
         </ul>
-        <form class="form-inline" id="search-form">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search customer" aria-label="Search">
+        <form class="form-inline" id="search-form" action="/">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search customer" aria-label="Search" name="search">
           <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
         </form>
       </div>
